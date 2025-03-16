@@ -5,9 +5,10 @@ let mainWindow;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
+    width: 800,
+    height: 600,
     frame: false,
+    icon: path.join(__dirname, '../assets/icon.ico'),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -17,7 +18,7 @@ function createWindow() {
 
   // Load the app
   if (!app.isPackaged) {
-    mainWindow.loadURL('http://localhost:4000');
+    mainWindow.loadURL('http://localhost:3000');
   } else {
     mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
   }

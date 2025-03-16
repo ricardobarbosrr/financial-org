@@ -3,14 +3,21 @@
   "version": "1.0.0",
   "description": "Electron + React + TailwindCSS Application",
   "main": "electron/main.js",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
-    "dev": "vite --port 4000",
-    "start": "wait-on tcp:4000 && electron .",
-    "dev:electron": "concurrently \"npm run dev\" \"npm run start\"",
+    "dev": "vite --port 5000",
+    "start": "electron .",
+    "dev:electron": "concurrently \"npm run dev\" \"wait-on tcp:5000 && npm run start\"",
     "build": "vite build",
     "preview": "vite preview",
     "electron:build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.teste.app",
+    "productName": "Teste",
+    "win": {
+      "icon": "assets/icon.ico"
+    }
   },
   "keywords": [],
   "author": "",
@@ -27,7 +34,9 @@
     "wait-on": "^8.0.3"
   },
   "dependencies": {
+    "chart.js": "^4.4.8",
     "react": "^19.0.0",
+    "react-chartjs-2": "^5.3.0",
     "react-dom": "^19.0.0"
   }
 }
