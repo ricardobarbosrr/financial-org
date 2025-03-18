@@ -1,5 +1,7 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow } = require('electron');
 const path = require('path');
+const ipcMain = require('electron').ipcMain;
+require('@electron/remote/main').initialize();
 
 let mainWindow;
 
@@ -8,19 +10,27 @@ function createWindow() {
     width: 800,
     height: 600,
     frame: false,
-    icon: path.join(__dirname, '../assets/icon.ico'),
     webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
+      nodeIntegration: true,
+      contextIsolation: false,
+      enableRemoteModule: true,
       preload: path.join(__dirname, 'preload.js')
-    }
+    },
+    icon: path.join(__dirname, '../assets/icon.ico')
   });
+
+  require('@electron/remote/main').enable(mainWindow.webContents);
 
   // Load the app
   if (!app.isPackaged) {
-    mainWindow.loadURL('http://localhost:3000');
+    mainWindow.loadURL('http://localhost:5000');
   } else {
     mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+  }
+
+  // Open the DevTools in development mode.
+  if (!app.isPackaged) {
+    mainWindow.webContents.openDevTools();
   }
 }
 
