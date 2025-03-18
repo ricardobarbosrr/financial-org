@@ -5,10 +5,10 @@ module.exports = defineConfig({
   plugins: [react()],
   base: './',
   server: {
-    port: 3000,
+    port: 5000,
     strictPort: true,
   },
   css: {
-    postcss: './postcss.config.cjs',
+    postcss: './postcss.config.js',
   },
 });

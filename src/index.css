@@ -20,10 +20,12 @@ body {
   background-color: #f3f4f6;
 }
 
+/* Classe para permitir arrastar a janela */
 .drag {
   -webkit-app-region: drag;
 }
 
-button {
+/* Botões dentro da área de arrasto não devem ser arrastáveis */
+.drag button {
   -webkit-app-region: no-drag;
 }

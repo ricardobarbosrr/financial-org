@@ -1,134 +1,112 @@
 import React, { useState } from 'react';
 
-const TransactionList = ({ transactions, onDelete, onEdit, categories }) => {
+const TransactionList = ({ 
+  transactions, 
+  onRemoveTransaction, 
+  onUpdateTransaction,
+  type,
+  categories
+}) => {
   const [editingId, setEditingId] = useState(null);
-  const [editForm, setEditForm] = useState({});
-  const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
+  const [editForm, setEditForm] = useState({
+    description: '',
+    amount: '',
+    category: '',
+    date: ''
+  });
 
-  const startEdit = (transaction) => {
+  // Filtra as transações
+  const filteredTransactions = transactions.filter(transaction => {
+    const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = !filterCategory || transaction.category === filterCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const handleEdit = (transaction) => {
     setEditingId(transaction.id);
     setEditForm({
-      ...transaction,
-      amount: Math.abs(transaction.amount)
+      description: transaction.description,
+      amount: transaction.amount,
+      category: transaction.category,
+      date: transaction.date
     });
   };
 
-  const handleEdit = (e) => {
+  const handleUpdate = (e) => {
     e.preventDefault();
-    const updatedTransaction = {
+    onUpdateTransaction(editingId, {
       ...editForm,
-      amount: editForm.type === 'expense' ? 
-        -Math.abs(parseFloat(editForm.amount)) : 
-        Math.abs(parseFloat(editForm.amount))
-    };
-    onEdit(editingId, updatedTransaction);
+      amount: Number(editForm.amount)
+    });
     setEditingId(null);
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setEditForm(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const filteredTransactions = transactions
-    .filter(t => {
-      if (filter === 'income') return t.amount > 0;
-      if (filter === 'expense') return t.amount < 0;
-      return true;
-    })
-    .filter(t => 
-      t.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      t.category.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) => b.timestamp - a.timestamp);
-
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(amount);
+  const handleCancel = () => {
+    setEditingId(null);
+    setEditForm({
+      description: '',
+      amount: '',
+      category: '',
+      date: ''
+    });
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Transações</h2>
-        <div className="flex space-x-2">
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="px-3 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="all">Todas</option>
-            <option value="income">Receitas</option>
-            <option value="expense">Despesas</option>
-          </select>
-          <input
-            type="text"
-            placeholder="Pesquisar..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-3 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+    <div className="bg-white rounded-lg shadow-md p-4">
+      {/* Filtros */}
+      <div className="mb-4 flex flex-col sm:flex-row gap-4">
+        <input
+          type="text"
+          placeholder="Buscar transações..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <select
+          value={filterCategory}
+          onChange={(e) => setFilterCategory(e.target.value)}
+          className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Todas as categorias</option>
+          {categories.map(category => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </select>
       </div>
 
+      {/* Lista de Transações */}
       <div className="space-y-4">
         {filteredTransactions.map(transaction => (
-          <div key={transaction.id} className="border rounded-lg p-4">
+          <div 
+            key={transaction.id}
+            className={`p-4 rounded-lg ${
+              type === 'income' ? 'bg-green-50' : 'bg-red-50'
+            }`}
+          >
             {editingId === transaction.id ? (
-              <form onSubmit={handleEdit} className="space-y-4">
-                <div className="flex space-x-4">
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      name="type"
-                      value="expense"
-                      checked={editForm.type === 'expense'}
-                      onChange={handleChange}
-                      className="mr-2"
-                    />
-                    <span className="text-red-500">Despesa</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      name="type"
-                      value="income"
-                      checked={editForm.type === 'income'}
-                      onChange={handleChange}
-                      className="mr-2"
-                    />
-                    <span className="text-green-500">Receita</span>
-                  </label>
-                </div>
-
+              <form onSubmit={handleUpdate} className="space-y-4">
                 <input
                   type="text"
-                  name="description"
                   value={editForm.description}
-                  onChange={handleChange}
+                  onChange={(e) => setEditForm({...editForm, description: e.target.value})}
                   className="w-full px-3 py-2 border rounded-md"
-                  required
+                  placeholder="Descrição"
                 />
                 <input
                   type="number"
-                  name="amount"
                   value={editForm.amount}
-                  onChange={handleChange}
+                  onChange={(e) => setEditForm({...editForm, amount: e.target.value})}
                   className="w-full px-3 py-2 border rounded-md"
                   step="0.01"
                   min="0"
-                  required
                 />
                 <select
-                  name="category"
                   value={editForm.category}
-                  onChange={handleChange}
+                  onChange={(e) => setEditForm({...editForm, category: e.target.value})}
                   className="w-full px-3 py-2 border rounded-md"
                 >
                   {categories.map(category => (
@@ -139,53 +117,53 @@ const TransactionList = ({ transactions, onDelete, onEdit, categories }) => {
                 </select>
                 <input
                   type="date"
-                  name="date"
                   value={editForm.date}
-                  onChange={handleChange}
+                  onChange={(e) => setEditForm({...editForm, date: e.target.value})}
                   className="w-full px-3 py-2 border rounded-md"
-                  required
                 />
-                <div className="flex space-x-2">
-                  <button
-                    type="submit"
-                    className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
-                  >
-                    Salvar
-                  </button>
+                <div className="flex justify-end space-x-2">
                   <button
                     type="button"
-                    onClick={() => setEditingId(null)}
-                    className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
+                    onClick={handleCancel}
+                    className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
                   >
                     Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                  >
+                    Salvar
                   </button>
                 </div>
               </form>
             ) : (
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="font-semibold">{transaction.description}</h3>
-                  <div className="text-sm text-gray-600">
-                    <span className="mr-2">{transaction.category}</span>
-                    <span>{transaction.date}</span>
+              <div>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-semibold">{transaction.description}</h3>
+                    <p className="text-sm text-gray-600">{transaction.category}</p>
+                    <p className="text-sm text-gray-600">
+                      {new Date(transaction.date).toLocaleDateString()}
+                    </p>
                   </div>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <span className={transaction.amount >= 0 ? 'text-green-500' : 'text-red-500'}>
-                    {formatCurrency(transaction.amount)}
-                  </span>
-                  <div className="flex space-x-2">
+                  <div className="flex items-center space-x-2">
+                    <span className={`font-semibold ${
+                      type === 'income' ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                      R$ {transaction.amount.toFixed(2)}
+                    </span>
                     <button
-                      onClick={() => startEdit(transaction)}
-                      className="text-blue-500 hover:text-blue-700"
+                      onClick={() => handleEdit(transaction)}
+                      className="p-1 text-blue-500 hover:text-blue-600"
                     >
-                      Editar
+                      ✎
                     </button>
                     <button
-                      onClick={() => onDelete(transaction.id)}
-                      className="text-red-500 hover:text-red-700"
+                      onClick={() => onRemoveTransaction(transaction.id)}
+                      className="p-1 text-red-500 hover:text-red-600"
                     >
-                      Excluir
+                      ×
                     </button>
                   </div>
                 </div>
@@ -193,6 +171,12 @@ const TransactionList = ({ transactions, onDelete, onEdit, categories }) => {
             )}
           </div>
         ))}
+
+        {filteredTransactions.length === 0 && (
+          <p className="text-center text-gray-500 py-4">
+            Nenhuma transação encontrada
+          </p>
+        )}
       </div>
     </div>
   );
