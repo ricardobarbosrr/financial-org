@@ -15,14 +15,14 @@ function createWindow() {
       enableRemoteModule: true,
       preload: path.join(__dirname, 'preload.js')
     },
-    icon: path.join(__dirname, '../assets/icon.ico')
+    icon: path.join(__dirname, '../assets/icon.png')
   });
 
   require('@electron/remote/main').enable(mainWindow.webContents);
 
   // Load the app
   if (!app.isPackaged) {
-    mainWindow.loadURL('http://localhost:5000');
+    mainWindow.loadURL('http://localhogetst:5000');
   } else {
     mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
   }

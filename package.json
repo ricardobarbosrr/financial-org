@@ -10,14 +10,22 @@
     "dev:electron": "concurrently \"npm run dev\" \"wait-on tcp:5000 && npm run start\"",
     "build": "vite build",
     "preview": "vite preview",
-    "electron:build": "electron-builder"
+    "electron:build": "node build.js"
   },
   "build": {
     "appId": "com.teste.app",
     "productName": "Teste",
     "win": {
-      "icon": "assets/icon.ico"
-    }
+      "icon": "assets/icon.png",
+      "target": ["nsis"],
+      "artifactName": "${productName}-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    },
+    "forceCodeSigning": false
   },
   "keywords": [],
   "author": "",
