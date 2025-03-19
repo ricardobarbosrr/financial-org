@@ -1,8 +1,11 @@
 
 # Organizador Financeiro
 
-    Esta aplicação serve como uma ferramenta focada em organizar o seu financeiro pessoal. Vale lembrar que este projeto foi criado com intuíto de aprendizado em relação ao framework Electron.JS. 
-
+    Esta aplicação serve como uma ferramenta focada em organizar o seu financeiro pessoal. Vale lembrar que este projeto foi 
+    criado com intuíto de aprendizado em relação ao framework Electron.JS. 
+    -----------------------------------------------------------------------------------------------------------------------------
+    This application serves as a tool focused on organizing your personal finances. It is worth remembering that this project was 
+    created with the aim of learning in relation to the Electron.JS framework.
 
 
 
